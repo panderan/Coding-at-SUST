@@ -2,6 +2,8 @@
 
 ## mission 1 - 函数绘图程序
 
+![mission1.1](http://oj8tpbqx0.bkt.clouddn.com/17-09-17/GTK_CYGWIN1.3.PNG)
+
 　　Introduction：http://blog.csdn.net/panderang/article/details/78011502
 
 　　Program：http://pan.baidu.com/s/1eS6aivo
