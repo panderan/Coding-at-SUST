@@ -1,8 +1,30 @@
+/******************************************************************************
+ ******************************************************************************
+ *
+ * @file bignum_operation.c
+ *
+ * @brief 实现字符数的加减乘除运行 
+ *
+ * 　　数字采用字符串的形式进行存储和运行，对数字大小和精度均无限制。
+ *
+ * @author Deran Pan 
+ * @date 2017-09-29
+ *
+ ******************************************************************************
+ ******************************************************************************
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "bignum_operation.h"
 
+
+/// 构造一个 snum_t 字符数结构
+/**
+ * @param str 数字初值
+ * @retval snum_t 字符数结构
+ */
 snum_t *snum_new(char *str)
 {
 	snum_t *snum = NULL;
@@ -63,6 +85,10 @@ snum_t *snum_new(char *str)
 	return snum;
 }
 
+/// 释放 snum_t 的内存空间
+/**
+ * @param snum 待释放的指向 snum_t 结构的指针
+ */
 void snum_free(snum_t *snum)
 {
 	if (snum!= NULL && snum->str != NULL) {
@@ -74,6 +100,11 @@ void snum_free(snum_t *snum)
 	return;
 }
 
+/// 将存储在 snum_t 中的数字转换为字符串
+/**
+ * @param snum 带转换的指向 snum_t 结构的指针
+ * @retval string 返回一个已分配内存的字符串（需额外free）
+ */
 char * snum_getstring(snum_t *snum)
 {
 	int i = 0, numlen = 0;
@@ -98,18 +129,26 @@ char * snum_getstring(snum_t *snum)
 	
 	return ret;
 }
-
+/// 对齐两个数字
+/**
+ * @param snum1 指向 snum_t 结构的指针
+ * @param snum2 指向 snum_t 结构的指针
+ * @retval snum_t指针数组 下标分别为0和1，指向两个对齐的 snum_t 结构。
+ */
 static snum_t * snum_align(snum_t *snum1, snum_t *snum2)
 {
 	snum_t *ret = NULL, *ret1 = NULL, *ret2 = NULL;
-	int fractional_alignlen = 0, integer_alignlen = 0;
+	int fractional_alignlen = 0;    // 小数段长度（不含小数点）
+	int integer_alignlen = 0;       // 整数段长度（不含小数点）
 	int i = 0;
 
+	// 分别计算小数段和整数段长度
 	fractional_alignlen = snum1->dot_idx > snum2->dot_idx ? 
 		snum1->dot_idx : snum2->dot_idx;
 	integer_alignlen = snum1->len - snum1->dot_idx > snum2->len - snum2->dot_idx ?
 		snum1->len - 1 - snum1->dot_idx : snum2->len - 1 - snum2->dot_idx;
-
+	
+	// 构建返回值并初始化其长度信息
 	ret = calloc(2, sizeof(snum_t));
 	if (ret == NULL) {
 		exit(EXIT_FAILURE);
@@ -120,13 +159,13 @@ static snum_t * snum_align(snum_t *snum1, snum_t *snum2)
 	ret1->dot_idx = fractional_alignlen;
 	ret2->len = fractional_alignlen + integer_alignlen + 1;
 	ret2->dot_idx = fractional_alignlen;
-
 	ret1->str = calloc(ret1->len+1, sizeof(char));
 	ret2->str = calloc(ret2->len+1, sizeof(char));
 	if (ret1->str == NULL || ret2->str == NULL) {
 		exit(EXIT_FAILURE);
 	}
 
+	// 分别赋值
 	for (i=0; i<ret1->len; i++) {
 		// 处理ret1
 		if (i-ret1->dot_idx+snum1->dot_idx >= 0 && 
@@ -150,16 +189,23 @@ static snum_t * snum_align(snum_t *snum1, snum_t *snum2)
 	return ret;
 }
 
-// @retval  0  snum1 >= snum2
-// @retval  1  snum1 <  snum2
+/// 比较两个 snum_t 字符数的大小
+/**
+ * @param snum1 指向 snum_t 结构的指针
+ * @param snum2 指向 snum_t 结构的指针
+ * @retval  0  snum1 >= snum2
+ * @retval  1  snum1 <  snum2
+ */
 static int snum_compare(snum_t *snum1, snum_t *snum2)
 {
 	int i = 0, j = 0;
 
 	if (snum1->len - snum1->dot_idx > snum2->len - snum2->dot_idx) {
+		// 比较整数部分长度，长着为大
 		return 0;
 	}
 	else if (snum1->len - snum1->dot_idx == snum2->len - snum2->dot_idx) {
+		// 整数等长，比较小数
 		for (i=snum1->len-1, j=snum2->len-1; i>=0 && j>=0; i--, j--) {
 			if (*(snum1->str+i) > *(snum2->str+j)) {
 				return 0;
@@ -188,15 +234,64 @@ static int snum_compare(snum_t *snum1, snum_t *snum2)
 	}
 }
 
+/// 删除字符数的前导0
+/**
+ * @param n 指向 snum_t 结构的指针
+ */
+static void wipe_leading_zero(snum_t *n)
+{
+	int i = 0;
+	for (i=n->len-1; i>=0; i--) {
+		if (*(n->str+i) == '0') {
+			if (i!=0 && *(n->str+i-1) != '.') {
+				n->len--;
+			}
+			else {
+				break;
+			}
+		}
+		else {
+			break;
+		}
+	}
+}
+
+/// 删除字符数的后缀0
+/**
+ * @param n 指向 snum_t 结构的指针
+ */
+static void wipe_tail_zero(snum_t *n)
+{
+	int i = 0, offset = 0;
+	for (i=0; i<n->dot_idx; i++) {
+		if (*(n->str+i) != '0') {
+			break;
+		}
+	}
+
+	for (offset=i,i=0; i+offset<n->len; i++) {
+		*(n->str+i) = *(n->str+i+offset);
+	}
+	n->len = n->len-offset;
+	*(n->str+n->len) = 0;
+}
+
+/// 个位数加法
+/**
+ * @param n1 加数字符，0~9
+ * @param n2 被加数字符，0~9
+ * @param is_carry 加法结果是否进位，0代表不进位，1代表进位
+ * @param res 指向字符的指针，存储计算结果
+ */
 static int __snum_plus(char n1, char n2, int is_carry, char *res)
 {
-	*res = n1 + n2 - 48;
+	*(res) = n1 + n2 - 48;
 	if (is_carry) {
-		(*res)++;
+		*res = *res + 1;
 	}
 
 	if (*res > 57) {
-		*res -= 10;
+		*res = *res - 10;
 		return 1;
 	}
 	else {
@@ -204,6 +299,14 @@ static int __snum_plus(char n1, char n2, int is_carry, char *res)
 	}
 }
 
+/// 字符数加法
+/**
+ * 这里假定 snum1 和 snum2 都是正数。
+ *
+ * @param snum1 指向 snum_t 结构的指针
+ * @param snum2 指向 snum_t 结构的指针
+ * @retval snum_t* 返回一个已分配内存存储了计算结果的 snum_t 结构
+ */
 static snum_t * _snum_plus(snum_t *snum1, snum_t *snum2)
 {
 	snum_t *optnum = NULL, *ret_snum = NULL;
@@ -213,13 +316,14 @@ static snum_t * _snum_plus(snum_t *snum1, snum_t *snum2)
 	if (ret_snum == NULL) {
 		exit(EXIT_FAILURE);
 	}
-	ret_snum->str = calloc(ret_snum->len+1, sizeof(char));
+	
+	optnum = snum_align(snum1, snum2);
+	ret_snum->str = calloc(optnum->len+1, sizeof(char));
 	if (ret_snum->str == NULL) {
 		free(optnum);
 		exit(EXIT_FAILURE);
 	}
-	
-	optnum = snum_align(snum1, snum2);
+
 	for (i=0; i<optnum->len; i++) {
 		if (*(optnum->str+i) == '.') {
 			*(ret_snum->str+i) = '.';
@@ -236,23 +340,37 @@ static snum_t * _snum_plus(snum_t *snum1, snum_t *snum2)
 	return ret_snum;
 }
 
+/// 个位数减加
+/**
+ * @param n1 减数字符，0~9
+ * @param n2 被减数字符，0~9
+ * @param is_borrow 是否需要借位，0代表不借位，1代表借位
+ * @param res 指向字符的指针，存储计算结果
+ */
 static int __snum_minus(char n1, char n2, int is_borrow, char *res)
 {
 	*res = n1 - n2 + 48;
 	if (is_borrow) {
-		(*res)--;
+		*res = *res - 1;
 	}
 	
 	if (*res >= 48) {
 		return 0;
 	}
 	else {
-		(*res) += 10;
+		*res = *res - 10;
 		return 1;
 	}
 }
 
-// 必须是大减小 且都是正数
+/// 字符数加法
+/**
+ * 这里假定 snum1 和 snum2 都是正数，且 snum1 要大于 snum2 。
+ *
+ * @param snum1 指向 snum_t 结构的指针
+ * @param snum2 指向 snum_t 结构的指针
+ * @retval snum_t* 返回一个已分配内存存储了计算结果的 snum_t 结构
+ */
 static snum_t * _snum_minus(snum_t *snum1, snum_t *snum2)
 {
 	snum_t *optnum = NULL, *ret_snum = NULL;
@@ -279,23 +397,172 @@ static snum_t * _snum_minus(snum_t *snum1, snum_t *snum2)
 	ret_snum->dot_idx = optnum->dot_idx;
 	ret_snum->len = optnum->len;
 
-	// 去除前导0 
-	for (i=ret_snum->len-1; i>=0; i--) {
-		if (*(ret_snum->str+i) == '0') {
-			if (i!=0 && *(ret_snum->str+i-1) != '.') {
-				ret_snum->len--;
-			}
-			else {
-				break;
-			}
-		}
-		else {
-			break;
-		}
-	}
+	wipe_leading_zero(ret_snum);
 	return ret_snum;
 }
 
+/// 移动字符数的小数点位置（乘10或除10操作）
+/**
+ * @param snum1 指向待操作字符数结构的指针
+ * @param offset 移动方式，offset>0表示乘10操作，offset<0表示除10操作
+ */
+static void *__offset_dot(snum_t *snum1, int offset)
+{
+	int dif = snum1->dot_idx - offset;
+	int i = 0;
+
+	if (dif < 0) {
+		// 乘以10且左补0
+		
+		// 将小数点移动最左端
+		for (i=snum1->dot_idx; i>0; i--) {
+			*(snum1->str+i) = *(snum1->str+i-1);
+		}
+		(*snum1->str) = '.';
+		
+		// 申请新的空间且补零
+		snum1->len = snum1->len-dif;
+		snum1->dot_idx = 0;
+		snum1->str = realloc(snum1->str, snum1->len+1);
+		for (i=snum1->len-1; i>-dif; i--) {
+			*(snum1->str+i) = *(snum1->str+i+dif);
+		}
+		for (;i>0;i--) {
+			*(snum1->str+i) = '0';
+		}
+		*(snum1->str) = '.';
+	}
+	else if (dif > snum1->len-2) {
+		// 除以10且右补零
+		
+		// 将小数点移动至最右端
+		for (i=snum1->dot_idx; i<snum1->len-1; i++) {
+			*(snum1->str+i) = *(snum1->str+i+1);
+		}
+		*(snum1->str+i) = '.';
+
+		// 申请新的空间且补零
+		snum1->str = realloc(snum1->str, dif+3);
+		i++;
+		*(snum1->str+i) = '0';
+		for (i++; i<dif+2; i++) {
+			*(snum1->str+i-2) = '0';
+			*(snum1->str+i-1) = '.';
+			*(snum1->str+i) = '0';
+		}
+		snum1->len = dif + 2;
+		snum1->dot_idx = dif;
+	}
+	else {
+		// 左移或右移且不用心申请空间
+		
+		if (offset > 0) {
+			// 乘以10，左移动
+			for (i=0; i<offset; i++) {
+				*(snum1->str+snum1->dot_idx) = *(snum1->str+snum1->dot_idx-1);
+				*(snum1->str+snum1->dot_idx-1) = '.';
+				snum1->dot_idx--;
+			}
+		}
+		else {
+			// 除以10，右移动
+			for (i=0; i<-offset; i++) {
+				*(snum1->str+snum1->dot_idx) = *(snum1->str+snum1->dot_idx+1);
+				*(snum1->str+snum1->dot_idx+1) = '.';
+				snum1->dot_idx++;
+			}
+		}
+	}
+
+	wipe_leading_zero(snum1);
+}
+
+/// 字符数和一位数的乘法
+/**
+ * @param snum1 指向待操作字符数结构的指针，乘数
+ * @param n 被乘数的字符，0~9
+ * @retval snum_t* 结果返回值，一个已分配内存的snum_t结构
+ */
+static snum_t *__snum_multiple(snum_t *snum1, char n)
+{
+	snum_t *ret = NULL;
+	int i = 0, m = 0, carry = 0;
+
+	ret = calloc(1, sizeof(snum_t));
+	if (ret == NULL) {
+		exit(EXIT_FAILURE);
+	}
+
+	ret->len = snum1->len+1;
+	ret->dot_idx = snum1->dot_idx;
+	ret->str = calloc(ret->len+1, sizeof(char));
+	if (ret->str == NULL) {
+		exit(EXIT_FAILURE);
+	}
+
+	for (i=0; i<snum1->len; i++) {
+		if (*(snum1->str+i) == '.') {
+			*(ret->str+i) = '.';
+		}
+		else {
+			m = (*(snum1->str+i)-48) * (n-48) + carry;
+			carry = m / 10;
+			m = m % 10;
+			*(ret->str+i) = m + 48;
+		}
+	}
+
+	if (carry != 0) {
+		*(ret->str+i) = carry+48;
+	}
+	else {
+		ret->len--;
+	}
+	return ret;
+}
+
+/// 字符数乘法
+/**
+ * @param snum1 指向待操作字符数结构的指针，乘数
+ * @param snum2 指向待操作字符数结构的指针，被乘数
+ * @retval snum_t* 结果返回值，一个已分配内存的snum_t结构
+ */
+snum_t *snum_multiple(snum_t *snum1, snum_t *snum2)
+{
+	snum_t *loop = NULL;
+	snum_t *temp_storage = NULL, *temp = NULL;
+	int i = 0, offset = 0;
+
+	temp_storage = snum_new("0");
+	for (i=0,offset=0; i<snum2->len; i++) {
+		if (*(snum2->str+i) == '.') {
+			continue;
+		}
+		else {
+			loop = __snum_multiple(snum1, *(snum2->str+i));
+			__offset_dot(loop, offset++);
+			temp = snum_plus(loop, temp_storage);
+			snum_free(loop);
+			snum_free(temp_storage);
+			temp_storage = temp;
+			temp = NULL;
+			loop = NULL;
+		}
+	}
+
+	temp_storage->sign = snum1->sign + snum2->sign;
+	temp_storage->sign = temp_storage->sign==2?0:temp_storage->sign;
+	__offset_dot(temp_storage, -snum2->dot_idx);
+	wipe_tail_zero(temp_storage);
+	return temp_storage;
+}
+
+/// 字符数加法
+/**
+ * @param snum1 指向待操作字符数结构的指针，加数
+ * @param snum2 指向待操作字符数结构的指针，被加数
+ * @retval snum_t* 结果返回值，一个已分配内存的snum_t结构
+ */
 snum_t * snum_plus(snum_t *snum1, snum_t *snum2)
 {
 	snum_t *ret = NULL;
@@ -329,6 +596,12 @@ snum_t * snum_plus(snum_t *snum1, snum_t *snum2)
 	return ret;
 }
 
+/// 字符数减法
+/**
+ * @param snum1 指向待操作字符数结构的指针，减数
+ * @param snum2 指向待操作字符数结构的指针，被减数
+ * @retval snum_t* 结果返回值，一个已分配内存的snum_t结构
+ */
 snum_t * snum_minus(snum_t *snum1, snum_t *snum2)
 {
 	snum_t *ret = NULL;
@@ -362,4 +635,47 @@ snum_t * snum_minus(snum_t *snum1, snum_t *snum2)
 	return ret;
 }
 
+///////////// TEST /////////////////////////////////////////////////////////////
+#if 0 
+int main(int argc, char ** argv)
+{
+	snum_t *n1 = NULL, *n2 = NULL, *ret = NULL;
+	char *ch = NULL;
+
+
+	TEST_SNUM_MULTIPLE("12.34", "34.45", n1, n2, ret, ch)
+
+#if 0
+	n1 = snum_new("-0.123");
+	n2 = snum_new("23");
+	ret = snum_multiple(n1, n2);
+	printf("%s\n", snum_getstring(ret));
+#endif 
+
+#if 0
+	n1 = snum_new("0");
+//	ret = __snum_multiple(n1, '9');
+	printf("%s\n", snum_getstring(ret));
+#endif
+
+#if 0
+	TEST_OFFSET_DOT(n1, ch, "123.456", 6)
+	TEST_OFFSET_DOT(n1, ch, "123.456", 5)
+	TEST_OFFSET_DOT(n1, ch, "123.456", 4)
+	TEST_OFFSET_DOT(n1, ch, "123.456", 3)
+	TEST_OFFSET_DOT(n1, ch, "123.456", 2)
+	TEST_OFFSET_DOT(n1, ch, "123.456", 1)
+	TEST_OFFSET_DOT(n1, ch, "123.456", 0)
+	TEST_OFFSET_DOT(n1, ch, "123.456", -1)
+	TEST_OFFSET_DOT(n1, ch, "123.456", -2)
+	TEST_OFFSET_DOT(n1, ch, "123.456", -3)
+	TEST_OFFSET_DOT(n1, ch, "123.456", -4)
+	TEST_OFFSET_DOT(n1, ch, "123.456", -5)
+	TEST_OFFSET_DOT(n1, ch, "123.456", -6)
+#endif 
+
+	return 0;
+}
+#endif
+////////////////////////////////////////////////////////////////////////////////
 
