@@ -8,12 +8,10 @@
 
 　　Program：http://pan.baidu.com/s/1eS6aivo
 
-## mission 2 - 字符数加减运算
+## mission 2 - 字符数加减乘除运算
 
 　　计算示例如下：
 
-![mission2.1](http://oj8tpbqx0.bkt.clouddn.com/17-09-23/suanfashejiyufenxi_mission2.1_.PNG)
+![mission2.1](http://oj8tpbqx0.bkt.clouddn.com/17-10-01/suanfashejiyufenxi_mission2.3.PNG)
 
-　　示例代码main函数部分如下：
-
-![mission2.2](http://oj8tpbqx0.bkt.clouddn.com/17-09-23/suanfashejiyufenxi_mission2.2.PNG)
+　
