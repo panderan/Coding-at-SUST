@@ -297,7 +297,7 @@ static snum_t * _snum_minus(snum_t *snum1, snum_t *snum2)
  * @param snum1 指向待操作字符数结构的指针
  * @param offset 移动方式，offset>0表示乘10操作，offset<0表示除10操作
  */
-static void *__offset_dot(snum_t *snum1, int offset)
+static void __offset_dot(snum_t *snum1, int offset)
 {
     int dif = snum1->dot_idx - offset;
     int i = 0;
@@ -508,60 +508,12 @@ void snum_free(snum_t *snum)
  */
 void snum_set(snum_t *n, char *str)
 {
-    int new_len = 0, i = 0, j = 0;
-    char *numstr = NULL;
+    snum_t *tmp = NULL;
+    tmp = snum_new1(str);
     
-    new_len = strlen(str);
-    if (n->len < new_len) {
-        n->str = realloc(n->str, new_len+2);
-        if (n->str == NULL) {
-            exit(EXIT_FAILURE);
-        }
-    }
-    n->len = new_len;
-    
-    // 处理正负号
-    if (*str == '-') {
-        n->sign = 1;
-        numstr = str+1;
-    }
-    else {
-        n->sign = 0;
-        numstr = str;
-    }
-    
-    // 赋值
-    //   检查是否有小数点
-    for (i=0; i<n->len; i++) {
-        if (*(numstr+i) == '.') {
-            break;
-        }
-    }
-    if (i < n->len) {
-        // 有小数点
-        for (i=0,j=n->len-1;
-                i<n->len;
-                *(n->str+i++)=*(numstr+j--));
-    }
-    else {
-        // 没有小数点
-        *(n->str+0) = '.';
-        n->len++;
-        for (i=1,j=n->len-1;
-                i<n->len;
-                *(n->str+i++)=*(numstr-1+j--));
-    }
-    *(n->str+i) = '\0';
-    
-    // 计算小数点的位置
-    for (i=0; i<n->len; i++) {
-        if (*(n->str+i) == '.') {
-            n->dot_idx = i;
-        }
-    }
-
-    wipe_leading_zero(n);
-    wipe_tail_zero(n);
+    free(n->str);
+    memcpy(n, tmp, sizeof(snum_t));
+    free(tmp);
 }
 
 /// 将存储在 snum_t 中的数字转换为字符串
@@ -571,7 +523,7 @@ void snum_set(snum_t *n, char *str)
  */
 char * snum_getstring(snum_t *snum)
 {
-    int i = 0, numlen = 0;
+    int i = 0;
     char *ret = NULL, *retnum = NULL;
     
     ret = calloc(snum->len+2, sizeof(char));
@@ -630,6 +582,7 @@ static int  _snum_divide(snum_t *snum1, snum_t *snum2)
     else {
         return 0;
     }
+    exit(EXIT_FAILURE);
 }
 
 /// 字符数除法
