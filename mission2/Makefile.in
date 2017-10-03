@@ -99,9 +99,12 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_snumopt_OBJECTS = bignum_operation.$(OBJEXT) main.$(OBJEXT)
+am_snumopt_OBJECTS = snumopt-bignum_operation.$(OBJEXT) \
+	snumopt-main.$(OBJEXT)
 snumopt_OBJECTS = $(am_snumopt_OBJECTS)
 snumopt_LDADD = $(LDADD)
+snumopt_LINK = $(CCLD) $(snumopt_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -118,6 +121,10 @@ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 am__mv = mv -f
+AM_V_lt = $(am__v_lt_@AM_V@)
+am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
+am__v_lt_0 = --silent
+am__v_lt_1 = 
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 AM_V_CC = $(am__v_CC_@AM_V@)
@@ -252,6 +259,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = foreign
 snumopt_SOURCES = bignum_operation.c main.c
+snumopt_CFLAGS = -Wall
 all: all-am
 
 .SUFFIXES:
@@ -330,7 +338,7 @@ clean-binPROGRAMS:
 
 snumopt$(EXEEXT): $(snumopt_OBJECTS) $(snumopt_DEPENDENCIES) $(EXTRA_snumopt_DEPENDENCIES) 
 	@rm -f snumopt$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(snumopt_OBJECTS) $(snumopt_LDADD) $(LIBS)
+	$(AM_V_CCLD)$(snumopt_LINK) $(snumopt_OBJECTS) $(snumopt_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -338,8 +346,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bignum_operation.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/snumopt-bignum_operation.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/snumopt-main.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -354,6 +362,34 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+snumopt-bignum_operation.o: bignum_operation.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(snumopt_CFLAGS) $(CFLAGS) -MT snumopt-bignum_operation.o -MD -MP -MF $(DEPDIR)/snumopt-bignum_operation.Tpo -c -o snumopt-bignum_operation.o `test -f 'bignum_operation.c' || echo '$(srcdir)/'`bignum_operation.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/snumopt-bignum_operation.Tpo $(DEPDIR)/snumopt-bignum_operation.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bignum_operation.c' object='snumopt-bignum_operation.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(snumopt_CFLAGS) $(CFLAGS) -c -o snumopt-bignum_operation.o `test -f 'bignum_operation.c' || echo '$(srcdir)/'`bignum_operation.c
+
+snumopt-bignum_operation.obj: bignum_operation.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(snumopt_CFLAGS) $(CFLAGS) -MT snumopt-bignum_operation.obj -MD -MP -MF $(DEPDIR)/snumopt-bignum_operation.Tpo -c -o snumopt-bignum_operation.obj `if test -f 'bignum_operation.c'; then $(CYGPATH_W) 'bignum_operation.c'; else $(CYGPATH_W) '$(srcdir)/bignum_operation.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/snumopt-bignum_operation.Tpo $(DEPDIR)/snumopt-bignum_operation.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bignum_operation.c' object='snumopt-bignum_operation.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(snumopt_CFLAGS) $(CFLAGS) -c -o snumopt-bignum_operation.obj `if test -f 'bignum_operation.c'; then $(CYGPATH_W) 'bignum_operation.c'; else $(CYGPATH_W) '$(srcdir)/bignum_operation.c'; fi`
+
+snumopt-main.o: main.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(snumopt_CFLAGS) $(CFLAGS) -MT snumopt-main.o -MD -MP -MF $(DEPDIR)/snumopt-main.Tpo -c -o snumopt-main.o `test -f 'main.c' || echo '$(srcdir)/'`main.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/snumopt-main.Tpo $(DEPDIR)/snumopt-main.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='main.c' object='snumopt-main.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(snumopt_CFLAGS) $(CFLAGS) -c -o snumopt-main.o `test -f 'main.c' || echo '$(srcdir)/'`main.c
+
+snumopt-main.obj: main.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(snumopt_CFLAGS) $(CFLAGS) -MT snumopt-main.obj -MD -MP -MF $(DEPDIR)/snumopt-main.Tpo -c -o snumopt-main.obj `if test -f 'main.c'; then $(CYGPATH_W) 'main.c'; else $(CYGPATH_W) '$(srcdir)/main.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/snumopt-main.Tpo $(DEPDIR)/snumopt-main.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='main.c' object='snumopt-main.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(snumopt_CFLAGS) $(CFLAGS) -c -o snumopt-main.obj `if test -f 'main.c'; then $(CYGPATH_W) 'main.c'; else $(CYGPATH_W) '$(srcdir)/main.c'; fi`
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique

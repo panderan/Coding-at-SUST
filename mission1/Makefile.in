@@ -260,7 +260,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = foreign
 funcdraw_SOURCES = mission1.c expression_eval.c
-funcdraw_CFLAGS = $(GTK_CFLAGS)
+funcdraw_CFLAGS = $(GTK_CFLAGS) -Wall
 funcdraw_LDADD = $(GTK_LIBS)
 all: all-am
 
