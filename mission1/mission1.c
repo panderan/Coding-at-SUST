@@ -65,7 +65,8 @@ coo_points_t *calculate(char *expr_str, double start_x, double end_x, int total_
     char buffer[1024];
     int buf_idx = 0;
     coo_points_t *data = NULL;
-    double scales = wwidth / (end_x - start_x);
+    double scalex = g_var.coordinate.endx-g_var.coordinate.startx;
+    double scaley = g_var.coordinate.endy-g_var.coordinate.starty;
     
     start = start_x;
     step = (end_x - start_x)/total_vertex;
@@ -87,11 +88,12 @@ coo_points_t *calculate(char *expr_str, double start_x, double end_x, int total_
      
         (data->vertexs+i)->x = start+step*i;
         (data->vertexs+i)->y = expression_eval(buffer);
-        printf("%s = %f\n", buffer, (data->vertexs+i)->y);
-        (data->vertexs+i)->x = (data->vertexs+i)->x*scales+wwidth/2;
-        (data->vertexs+i)->y = -(data->vertexs+i)->y*scales+wheight/2;
+        printf("%s = %f || ", buffer, (data->vertexs+i)->y);
+        (data->vertexs+i)->x = (g_var.coordinate.origin_vertex.x + (data->vertexs+i)->x/scalex) * g_var.coordinate.wwidth;
+        (data->vertexs+i)->y = (g_var.coordinate.origin_vertex.y - (data->vertexs+i)->y/scaley) * g_var.coordinate.wheight;
+        printf("(%f, %f)\n", (data->vertexs+i)->x, (data->vertexs+i)->y);
     }
-    
+    printf("screen:%d-%d\n", g_var.coordinate.wwidth, g_var.coordinate.wheight);
     return data;
 }
 
@@ -114,6 +116,7 @@ static void draw_coordinate(GtkWidget *widget, double start_x, double end_x,
 {
     cairo_t *cr;
     int i;
+    double loop;
 
     // 计算坐标系参数
     g_var.coordinate.spacex = 50;
@@ -126,26 +129,32 @@ static void draw_coordinate(GtkWidget *widget, double start_x, double end_x,
     g_var.coordinate.middlex = start_x + (end_x - start_x) * 0.5;
     g_var.coordinate.stepx = (end_x - start_x)/(g_var.coordinate.wwidth / g_var.coordinate.spacex);
     g_var.coordinate.scalex = g_var.coordinate.wwidth /(g_var.coordinate.endx - g_var.coordinate.startx);
-    if (end_y < 0)
-        g_var.coordinate.x_axis_pos = 0;
-    else if (start_y > 0)
-        g_var.coordinate.x_axis_pos = g_var.coordinate.wheight;
-    else {
-        g_var.coordinate.x_axis_pos = (int)(-start_y / (end_y - start_y) * g_var.coordinate.wheight);
-    }
-    g_var.coordinate.x_axis_pos = g_var.coordinate.wheight - g_var.coordinate.x_axis_pos;
 
     g_var.coordinate.starty = start_y;
     g_var.coordinate.endy = end_y;
     g_var.coordinate.middley = start_y + (end_y - start_y) * 0.5;
     g_var.coordinate.stepy = (end_y - start_y)/(g_var.coordinate.wheight / g_var.coordinate.spacey);
     g_var.coordinate.scaley = g_var.coordinate.wheight / (g_var.coordinate.endy - g_var.coordinate.starty);
-    if (end_x < 0)
-        g_var.coordinate.y_axis_pos = 0;
-    else if (start_x > 0)
-        g_var.coordinate.y_axis_pos = g_var.coordinate.wwidth;
+
+    // 计算原点坐标位置
+    if (g_var.coordinate.startx*g_var.coordinate.endx < 0) {
+        g_var.coordinate.origin_vertex.x = -g_var.coordinate.startx/(g_var.coordinate.endx-g_var.coordinate.startx);
+    }
+    else if (g_var.coordinate.startx >= 0) {
+        g_var.coordinate.origin_vertex.x = 0;
+    }
     else {
-        g_var.coordinate.y_axis_pos = (int)(-start_x / (end_x - start_x) * g_var.coordinate.wwidth);
+        g_var.coordinate.origin_vertex.x = 1;
+    }
+    if (g_var.coordinate.starty*g_var.coordinate.endy < 0) {
+        g_var.coordinate.origin_vertex.y = -g_var.coordinate.starty/(g_var.coordinate.endy-g_var.coordinate.starty);
+        g_var.coordinate.origin_vertex.y = 1 - g_var.coordinate.origin_vertex.y;
+    }
+    else if (g_var.coordinate.starty >= 0) {
+        g_var.coordinate.origin_vertex.y = 1;
+    }
+    else {
+        g_var.coordinate.origin_vertex.y = 0;
     }
 
     // 绘制
@@ -153,73 +162,36 @@ static void draw_coordinate(GtkWidget *widget, double start_x, double end_x,
     cairo_set_source_rgb(cr, 0, 0, 0);
 
     // 绘制x轴
-    cairo_move_to(cr, 0, g_var.coordinate.x_axis_pos);
-    cairo_line_to(cr, g_var.coordinate.wwidth, g_var.coordinate.x_axis_pos);
-    for (i=0; 
-            g_var.coordinate.middlex + i*g_var.coordinate.stepx 
-              < g_var.coordinate.endx; 
+    cairo_move_to(cr, 0, g_var.coordinate.origin_vertex.y*g_var.coordinate.wheight);
+    cairo_line_to(cr, g_var.coordinate.wwidth, g_var.coordinate.origin_vertex.y*g_var.coordinate.wheight);
+    for (i=0;
+            (loop=g_var.coordinate.origin_vertex.x + i*g_var.coordinate.stepx/(g_var.coordinate.endx-g_var.coordinate.startx)) <= 1.0;
             i++) {
-        cairo_move_to(cr, 
-                g_var.coordinate.wwidth/2 + i*g_var.coordinate.stepx*g_var.coordinate.scalex, 
-                g_var.coordinate.x_axis_pos+3);
-        cairo_line_to(cr, 
-                g_var.coordinate.wwidth/2 + i*g_var.coordinate.stepx*g_var.coordinate.scalex, 
-                g_var.coordinate.x_axis_pos-5);
+        cairo_move_to(cr, loop*g_var.coordinate.wwidth, g_var.coordinate.origin_vertex.y*g_var.coordinate.wheight+3);
+        cairo_line_to(cr, loop*g_var.coordinate.wwidth, g_var.coordinate.origin_vertex.y*g_var.coordinate.wheight-5);
     }
-    for (i=0; 
-            g_var.coordinate.middlex - i*g_var.coordinate.stepx 
-              > g_var.coordinate.startx; 
+    for (i=0;
+            (loop=g_var.coordinate.origin_vertex.x - i*g_var.coordinate.stepx/(g_var.coordinate.endx-g_var.coordinate.startx)) >= 0.0;
             i++) {
-        cairo_move_to(cr, 
-                g_var.coordinate.wwidth/2 - i*g_var.coordinate.stepx*g_var.coordinate.scalex, 
-                g_var.coordinate.x_axis_pos+3);
-        cairo_line_to(cr, 
-                g_var.coordinate.wwidth/2 - i*g_var.coordinate.stepx*g_var.coordinate.scalex, 
-                g_var.coordinate.x_axis_pos-5);
+        cairo_move_to(cr, loop*g_var.coordinate.wwidth, g_var.coordinate.origin_vertex.y*g_var.coordinate.wheight+3);
+        cairo_line_to(cr, loop*g_var.coordinate.wwidth, g_var.coordinate.origin_vertex.y*g_var.coordinate.wheight-5);
     }
 
     // 绘制y轴
-    cairo_move_to(cr, g_var.coordinate.y_axis_pos, 0);
-    cairo_line_to(cr, g_var.coordinate.y_axis_pos, g_var.coordinate.wheight);
+    cairo_move_to(cr, g_var.coordinate.origin_vertex.x*g_var.coordinate.wwidth, 0);
+    cairo_line_to(cr, g_var.coordinate.origin_vertex.x*g_var.coordinate.wwidth, g_var.coordinate.wheight);
     for (i=0;
-            g_var.coordinate.middley + i*g_var.coordinate.stepy
-            < g_var.coordinate.endy;
+            (loop=g_var.coordinate.origin_vertex.y + i*g_var.coordinate.stepy/(g_var.coordinate.endy-g_var.coordinate.starty)) <= 1.0;
             i++) {
-        cairo_move_to(cr,
-                g_var.coordinate.y_axis_pos-3,
-                g_var.coordinate.wheight/2 + i*g_var.coordinate.stepy*g_var.coordinate.scaley);
-        cairo_line_to(cr,
-                g_var.coordinate.y_axis_pos+5,
-                g_var.coordinate.wheight/2 + i*g_var.coordinate.stepy*g_var.coordinate.scaley);
+        cairo_move_to(cr, g_var.coordinate.origin_vertex.x*g_var.coordinate.wwidth-3, loop*g_var.coordinate.wheight);
+        cairo_line_to(cr, g_var.coordinate.origin_vertex.x*g_var.coordinate.wwidth+5, loop*g_var.coordinate.wheight);
     }
     for (i=0;
-            g_var.coordinate.middley - i*g_var.coordinate.stepy
-            > g_var.coordinate.starty;
+            (loop=g_var.coordinate.origin_vertex.y - i*g_var.coordinate.stepy/(g_var.coordinate.endy-g_var.coordinate.starty)) >= 0.0;
             i++) {
-        cairo_move_to(cr,
-                g_var.coordinate.y_axis_pos-3,
-                g_var.coordinate.wheight/2 - i*g_var.coordinate.stepy*g_var.coordinate.scaley);
-        cairo_line_to(cr,
-                g_var.coordinate.y_axis_pos+5,
-                g_var.coordinate.wheight/2 - i*g_var.coordinate.stepy*g_var.coordinate.scaley);
+        cairo_move_to(cr, g_var.coordinate.origin_vertex.x*g_var.coordinate.wwidth-3, loop*g_var.coordinate.wheight);
+        cairo_line_to(cr, g_var.coordinate.origin_vertex.x*g_var.coordinate.wwidth+5, loop*g_var.coordinate.wheight);
     }
-
-
-#if 0
-    /* Paint to the surface, where we store our state */
-    cr = cairo_create (g_var.surface);
-    cairo_set_source_rgb(cr, 0, 0, 0);
-    cairo_move_to(cr, 0, height/2);
-    cairo_line_to(cr, width, height/2);
-    cairo_move_to(cr, width, height/2);
-    cairo_line_to(cr, width-10, height/2-10);
-    
-    cairo_move_to(cr, width/2, height);
-    cairo_line_to(cr, width/2, 0);
-    cairo_move_to(cr, width/2, 0);
-    cairo_line_to(cr, width/2-10, 10);
-    cairo_set_line_width(cr, 1);
-#endif
 
     cairo_stroke(cr);
     cairo_destroy (cr);
@@ -261,7 +233,8 @@ static void start_draw(GtkButton *button, gpointer data)
     GtkTextIter start, end;
     char *funcs_strs = NULL;
     coo_points_t *vertexs;
-    
+    double startx, endx;
+
     // 寻找 TextView 和 DrawArea
     text_view = GTK_WIDGET(gtk_builder_get_object(g_var.builder, "func_input"));
     drawing_area = GTK_WIDGET(gtk_builder_get_object(g_var.builder, "drawingarea"));
@@ -274,21 +247,19 @@ static void start_draw(GtkButton *button, gpointer data)
     printf("%s\n", funcs_strs);
 
     clear_surface();
-    draw_coordinate(drawing_area, -3,5,-3,5);
-#if 0    
-    vertexs = calculate(funcs_strs, -5, 5, 50, 
+    draw_coordinate(drawing_area, 
+            startx=atof(gtk_entry_get_text(GTK_ENTRY(gtk_builder_get_object(g_var.builder, "startx_entry")))),
+            endx=atof(gtk_entry_get_text(GTK_ENTRY(gtk_builder_get_object(g_var.builder, "endx_entry")))),
+            atof(gtk_entry_get_text(GTK_ENTRY(gtk_builder_get_object(g_var.builder, "starty_entry")))),
+            atof(gtk_entry_get_text(GTK_ENTRY(gtk_builder_get_object(g_var.builder, "endy_entry")))));
+    vertexs = calculate(funcs_strs, startx, endx, 50, 
             gtk_widget_get_allocated_width (drawing_area),
             gtk_widget_get_allocated_height (drawing_area));
-    
-    // 绘制图像
-    clear_surface();
-    draw_coordinate(drawing_area, -5, 5, 1);
     draw_functional_image(drawing_area, vertexs);
-#endif
 
     // 释放内存资源
     free(funcs_strs);
-    //coo_points_free(vertexs);
+    coo_points_free(vertexs);
 }
 
 /// 重绘图像
@@ -349,7 +320,6 @@ static void activate (  GtkApplication *app, gpointer user_data)
     draw_btn = GTK_WIDGET(gtk_builder_get_object(g_var.builder, "draw_btn"));
 
     // 创建窗口并设置属性
-    gtk_window_set_title (GTK_WINDOW (window), "函数绘图");
     g_signal_connect (window, "destroy", G_CALLBACK (close_window), NULL);
     g_var.window = window;
     

@@ -11,6 +11,10 @@ const char * theme = "\
     font-size: 18px;\
 }";
 
+struct _coo_point {
+    double x;
+    double y;
+};
 
 struct coordinate_params {
     double startx;
@@ -27,6 +31,7 @@ struct coordinate_params {
     double scaley;         /**< 坐标值到屏幕像素的缩放大小 */
     int y_axis_pos;
     int spacey;
+    struct _coo_point origin_vertex;
     int wwidth;
     int wheight;
 };
@@ -40,11 +45,6 @@ typedef struct global_var {
 
     struct coordinate_params coordinate;
 } global_var_t;
-
-struct _coo_point {
-    double x;
-    double y;
-};
 
 typedef struct coo_points {
     int total;

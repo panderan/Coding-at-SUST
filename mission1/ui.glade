@@ -6,10 +6,14 @@
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
   </object>
+  <object class="GtkTextBuffer" id="textbuffer1">
+    <property name="text" translatable="yes">sin(x)</property>
+  </object>
   <object class="GtkWindow" id="window">
     <property name="width_request">1100</property>
     <property name="height_request">600</property>
     <property name="can_focus">False</property>
+    <property name="title" translatable="yes">funcdraw-函数绘图</property>
     <child>
       <object class="GtkBox" id="h1_box">
         <property name="visible">True</property>
@@ -47,7 +51,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEntry" id="entry1">
+                  <object class="GtkEntry" id="startx_entry">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="invisible_char">●</property>
@@ -72,7 +76,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEntry" id="entry3">
+                  <object class="GtkEntry" id="endx_entry">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="invisible_char">●</property>
@@ -108,7 +112,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEntry" id="entry2">
+                  <object class="GtkEntry" id="starty_entry">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="invisible_char">●</property>
@@ -133,7 +137,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEntry" id="entry4">
+                  <object class="GtkEntry" id="endy_entry">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="invisible_char">●</property>
@@ -176,6 +180,7 @@
                   <object class="GtkTextView" id="func_input">
                     <property name="can_focus">True</property>
                     <property name="wrap_mode">char</property>
+                    <property name="buffer">textbuffer1</property>
                   </object>
                 </child>
               </object>
