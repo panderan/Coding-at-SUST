@@ -1,4 +1,4 @@
-# SUST 算法设计与分析课程
+# SUST 课程作业
 
 ## 1.  编译和运行
 
@@ -31,4 +31,8 @@ build $ make
 
 ![mission2.1](http://oj8tpbqx0.bkt.clouddn.com/17-10-01/suanfashejiyufenxi_mission2.3.PNG)
 
-　
+## 4. mission 3 - K均值聚类算法C实现（二维）
+
+　　演示实例如下：
+
+![kmeans](http://oj8tpbqx0.bkt.clouddn.com/17-10-15/kmeans.gif)

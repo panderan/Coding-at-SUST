@@ -4,7 +4,9 @@
 AC_PREREQ([2.69])
 AC_INIT([funcdraw snumopt], [1.0], [panderan@163.com])
 AM_INIT_AUTOMAKE
-AC_CONFIG_SRCDIR([mission1/expression_eval.c], [mission2/bignum_operation.c])
+AC_CONFIG_SRCDIR([mission1/expression_eval.c], 
+                 [mission2/bignum_operation.c],
+                 [mission3/main.c])
 AC_CONFIG_HEADERS([config.h])
 PKG_PROG_PKG_CONFIG([0.29])
 # Checks for programs.
@@ -21,5 +23,7 @@ AC_C_INLINE
 
 # Checks for library functions.
 AC_CHECK_FUNCS([memset pow])
-AC_CONFIG_FILES([Makefile mission1/Makefile mission2/Makefile])
+AC_CONFIG_FILES([Makefile mission1/Makefile 
+                          mission2/Makefile 
+                          mission3/Makefile])
 AC_OUTPUT

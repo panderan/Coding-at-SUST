@@ -1,2 +1,2 @@
 AUTOMAKE_OPTIONS=foreign
-SUBDIRS=mission1 mission2
+SUBDIRS=mission1 mission2 mission3
