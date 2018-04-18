@@ -1,0 +1,21 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+
+PROJECT(dataoutput)
+SET(DO_LIB_SRC ./dataoutput_factory.cpp
+                ./dataoutput1.cpp)
+SET(DO_LIB_TEST_SRC ./dataoutput1.cpp
+                ./dataoutput_test.cpp)
+
+FIND_PACKAGE(PkgConfig)
+PKG_CHECK_MODULES(EIGEN REQUIRED eigen3)
+
+INCLUDE_DIRECTORIES(${EIGEN_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/..)
+SET(CMAKE_CXX_FLAGS_DEBUG -g)
+
+ADD_LIBRARY(${PROJECT_NAME} STATIC ${DO_LIB_SRC})
+ADD_EXECUTABLE(dop_test ${DO_LIB_TEST_SRC})
+
+#Settings for test
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/../datareader)
+TARGET_LINK_LIBRARIES(dop_test datareader)
