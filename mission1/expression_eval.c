@@ -11,8 +11,7 @@
 #define NODE_TYPE_OPERATOR 1
 #define NODE_TYPE_OPERATOR_PROCESSED 2
 #define NODE_TYPE_NUM 3 
-#define NODE_TYPE_ROOT 4
-#define NODE_TYPE_UNKNOW 5
+#define NODE_TYPE_UNKNOW 4
 
 #define OPERATOR_PLUS 10
 #define OPERATOR_MINUS 11
@@ -33,10 +32,10 @@ typedef struct bintree {
     struct bintree *parent;
     struct bintree *lchild;
     struct bintree *rchild;
-    node_type type;
-    double value;
-    int opt_type;
-    char opt_str[6];
+    node_type type;         /**< 节点类型 */
+    double value;           /**< 数值     */
+    int opt_type;           /**< 操作符类型 */
+    char opt_str[6];        /**< 操作符字符 */
     
 }bintree_t;
 
@@ -202,7 +201,7 @@ bintree_t *build_bintree(bintree_t *root) {
         }
         
 
-        // 发现右括号节点，将该节点左右子表达式的root节点。
+        // 发现右括号节点，将该节点作为子表达式的root节点。
         else if (loop->type == NODE_TYPE_OPERATOR && 
                 loop->opt_type == OPERATOR_LEFT_BRACKET) {
             intered_backet = TRUE;

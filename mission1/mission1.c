@@ -234,6 +234,8 @@ static void start_draw(GtkButton *button, gpointer data)
     char *funcs_strs = NULL;
     coo_points_t *vertexs;
     double startx, endx;
+    
+    memset(&(g_var.coordinate), 0, sizeof(struct coordinate_params));
 
     // 寻找 TextView 和 DrawArea
     text_view = GTK_WIDGET(gtk_builder_get_object(g_var.builder, "func_input"));
