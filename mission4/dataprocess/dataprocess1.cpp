@@ -43,6 +43,7 @@ void dataprocess1::process_spanningtree(matrix_list &mlist, matrix_list &olist)
     g = mlist.front();
     get_basic_incidence_matrix(inc_mat, g->m);
     get_spanning_tree(g->name, inc_mat, olist);
+    process_display(mlist, olist);
 }
 
 void dataprocess1::get_basic_incidence_matrix(MatrixXi &inc_mat, MatrixXi adj_mat)

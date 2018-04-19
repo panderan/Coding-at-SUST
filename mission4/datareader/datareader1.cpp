@@ -17,6 +17,9 @@ void datareader1::read(string filepath, matrix_list &mlist, expr_list &elist)
     }
 
     for (fgets(line, 1024, fp); feof(fp) == 0; fgets(line, 1024, fp)) {
+        if (line[0] == '#') {
+            continue;
+        }
         if (strlen(line) < 7) {
             continue;
         }

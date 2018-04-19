@@ -4,6 +4,8 @@
 #include "dataprocess_factory.h"
 #include "dataoutput_factory.h"
 
+void print_help();
+
 int main(int argc, char *argv[])
 {
     matrix_list mlist;
@@ -13,8 +15,8 @@ int main(int argc, char *argv[])
     dataprocess_interface *dp = NULL;
     dataoutput_interface *dop = NULL;
 
-
     if (argc < 1) {
+        print_help();
         exit(1);
     }
 
@@ -30,4 +32,10 @@ int main(int argc, char *argv[])
     dop = dataoutput_factory::get_dataoutput();
     dop->output_graph(olist);
     return 0;
+}
+
+void print_help()
+{
+    cout<<"grptools help:"<<endl;
+    cout<<"  grptools <filename>"<<endl;
 }
