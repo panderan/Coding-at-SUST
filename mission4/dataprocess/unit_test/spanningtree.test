@@ -1,0 +1,7 @@
+grpadj st_test {
+0 1 0 1
+1 0 1 1
+0 1 0 1
+1 1 1 0
+}
+commnd spanningtree 

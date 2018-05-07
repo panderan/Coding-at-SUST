@@ -1,9 +1,13 @@
-#include "datareader1.h"
+#include "default_datareader.h"
+#include "datareader_factory.h"
 #include <iostream>
+
+REGISTER_TO_A_FACTORY(datareader_factory, default_datareader, "default", datareader_interface)
+REFLECT_IMPLEMENT(datareader_interface, default_datareader)
 
 using std::cout;
 
-void datareader1::read(string filepath, matrix_list &mlist, expr_list &elist)
+void default_datareader::read(string filepath, matrix_list &mlist, expr_list &elist)
 {
     char line[1024] = {0};
     char tmp[512] = {0};
@@ -31,13 +35,15 @@ void datareader1::read(string filepath, matrix_list &mlist, expr_list &elist)
             for (chp2 = chp; *chp2 != ' ' && *chp2 != '{' && *chp2 != 0; chp2++);
             *chp2 = 0;
             strcpy(graph->name, chp);
+            read_graph(fp, graph);
             if (strcasecmp(line, "grpadj") == 0) {
                 graph->grp_type = ADJACENCY_MATRIX;
+                check_grpadj(graph);
             }
             else {
                 graph->grp_type = BASIC_INCIDENCE_MATRIX;
+                check_grpinc(graph);
             }
-            read_graph(fp, graph);
             mlist.push_back(graph);
         }
         if (strcasecmp(line, "commnd") == 0) {
@@ -59,7 +65,7 @@ void datareader1::read(string filepath, matrix_list &mlist, expr_list &elist)
 }
 
 
-void datareader1::read_graph(FILE *fp, s_graph *graph) 
+void default_datareader::read_graph(FILE *fp, s_graph *graph) 
 {
     int ch = 0, row = 0, col = 0, col_prev = 0;
     int cutrowsize = 10, cutcolsize=10;
@@ -109,4 +115,74 @@ void datareader1::read_graph(FILE *fp, s_graph *graph)
     graph->m.conservativeResize(row, col_prev);
     return ;
 }
+
+void default_datareader::check_grpadj(const s_graph * const graph)
+{
+    int row= 0, col = 0;
+    int i = 0, j = 0;
+    
+    row = graph->m.rows();
+    col = graph->m.cols();
+
+    if (row != col) {
+        fprintf(stderr, "邻接矩阵必须是对称矩阵,行与列不相等\n");
+        exit(1);
+    }
+    
+    for (i=0; i<row; i++) {
+        for (j=0; j<col; j++) {
+            if (j<=i) {
+                continue;
+            }
+            if (graph->m(i,j) != graph->m(j,i)) {
+                fprintf(stderr, "邻接矩阵必须是对称矩阵(%d,%d) != (%d,%d)\n",
+                        i,j,j,i);
+                exit(1);
+            }
+        }
+    }
+}
+
+void default_datareader::check_grpinc(const s_graph * const graph)
+{
+    int row= 0, col = 0;
+    int i = 0, j = 0;
+    int cnt = 0;
+
+    row = graph->m.rows();
+    col = graph->m.cols();
+
+    for (j=0; j<col; j++) {
+        cnt = 0;
+        for (i=0; i<row; i++) {
+            cnt += graph->m(i,j);
+        }
+        if (cnt>2) {
+            fprintf(stderr, "关联矩阵的每一列的元素和应当小于等于2,列：%d\n",
+                    j);
+            exit(1);
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

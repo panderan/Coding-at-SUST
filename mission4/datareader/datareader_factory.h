@@ -5,8 +5,10 @@
 
 class datareader_factory
 {
+    REFLECT_FACTORY_CONSTRUCTOR(datareader_factory, datareader_interface)
+
     public:
-        static datareader_interface * get_datareader();
+        static datareader_interface * get_datareader(const char *name = "default");
 };
 
 #endif 

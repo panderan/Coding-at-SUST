@@ -1,10 +1,12 @@
-#ifndef _DATAOUTPUT1_
-#define _DATAOUTPUT1_
+#ifndef _NEATO_DATAOUTPUT_ 
+#define _NEATO_DATAOUTPUT_
 
 #include "dataoutput_interface.h"
 
-class dataoutput1: public dataoutput_interface
+class neato_dataoutput: public dataoutput_interface
 {
+    REFLECT_DECLARE(dataoutput_interface)
+
     public:
         virtual void output_graph(matrix_list &glist);
 

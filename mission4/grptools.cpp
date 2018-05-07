@@ -25,8 +25,8 @@ int main(int argc, char *argv[])
     dr->read(argv[1], mlist, elist);
 
     // 处理矩阵
-    dp = dataprocess_factory::get_dataprocess();
-    dp->process(mlist, elist, olist);
+    dp = dataprocess_factory::get_dataprocess(elist.front().c_str());
+    dp->process(mlist, olist);
 
     // 图形输出
     dop = dataoutput_factory::get_dataoutput();

@@ -5,8 +5,10 @@
 
 class dataprocess_factory 
 {
+    REFLECT_FACTORY_CONSTRUCTOR(dataprocess_factory, dataprocess_interface)
+
     public:
-        static dataprocess_interface * get_dataprocess();
+        static dataprocess_interface * get_dataprocess(const char *name = "display");
 };
 
 #endif

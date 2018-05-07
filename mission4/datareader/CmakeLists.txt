@@ -2,9 +2,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 PROJECT(datareader)
 SET(DR_LIB_SRC ./datareader_factory.cpp
-            ./datareader1.cpp)
-SET(DR_LIB_TEST_SRC ./datareader1.cpp
-            ./datareader_test.cpp)
+            ./default_datareader.cpp)
 
 FIND_PACKAGE(PkgConfig)
 PKG_CHECK_MODULES(EIGEN REQUIRED eigen3)
@@ -14,4 +12,3 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/..)
 SET(CMAKE_CXX_FLAGS_DEBUG -g)
 
 ADD_LIBRARY(${PROJECT_NAME} STATIC ${DR_LIB_SRC})
-ADD_EXECUTABLE(dr_test ${DR_LIB_TEST_SRC})

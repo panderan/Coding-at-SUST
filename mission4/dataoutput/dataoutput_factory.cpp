@@ -1,7 +1,13 @@
 #include "dataoutput_factory.h"
-#include "dataoutput1.h"
+#include "neato_dataoutput.h"
 
-dataoutput_interface * dataoutput_factory::get_dataoutput()
+DECLEARE_REGISTATION(dataoutput_factory, dataoutput_interface)
+REFLECT_FACTORY_CONSTRUCTOR_IMPLEMENT(dataoutput_factory, dataoutput_interface)
+
+dataoutput_interface * dataoutput_factory::get_dataoutput(const char *name)
 {
-    return (dataoutput_interface *)new dataoutput1();
+    dataoutput_interface * ret = NULL;
+
+    SEARCH_REGISTATION(dataoutput_factory, name, dataoutput_interface, ret)
+    return ret;
 }

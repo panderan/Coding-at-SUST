@@ -2,40 +2,19 @@
 #include <iostream>
 #endif
 
-#include "dataprocess1.h"
+#include "dataprocess_factory.h"
+#include "spanningtree_dataprocess.h"
 
-void dataprocess1::process(matrix_list &mlist, 
-                            expr_list &elist,
+REGISTER_TO_A_FACTORY(dataprocess_factory, spanningtree_dataprocess, "spanningtree", dataprocess_interface)
+REFLECT_IMPLEMENT(dataprocess_interface, spanningtree_dataprocess)
+
+void spanningtree_dataprocess::process(matrix_list &mlist, 
                             matrix_list &olist)
 {
-    string cmd;
-    cmd = elist.front();
-
-    if (strcasecmp(cmd.c_str(), "display") == 0) {
-        process_display(mlist, olist);        
-    }
-    else if (strcasecmp(cmd.c_str(), "spanningtree") == 0) {
-        process_spanningtree(mlist, olist);
-    }
-    else {
-        fprintf(stderr, "Invalid command\n");
-        exit(1);
-    }
-
+    process_spanningtree(mlist, olist);
 }
 
-void dataprocess1::process_display(matrix_list &mlist, matrix_list &olist)
-{
-    s_graph *tmp = NULL;
-
-    while (!mlist.empty()) {
-        tmp = mlist.front();
-        mlist.pop_front();
-        olist.push_back(tmp);
-    }
-}
-
-void dataprocess1::process_spanningtree(matrix_list &mlist, matrix_list &olist)
+void spanningtree_dataprocess::process_spanningtree(matrix_list &mlist, matrix_list &olist)
 {
     s_graph *g = NULL;
     MatrixXi inc_mat;
@@ -46,7 +25,7 @@ void dataprocess1::process_spanningtree(matrix_list &mlist, matrix_list &olist)
     process_display(mlist, olist);
 }
 
-void dataprocess1::get_basic_incidence_matrix(MatrixXi &inc_mat, MatrixXi adj_mat)
+void spanningtree_dataprocess::get_basic_incidence_matrix(MatrixXi &inc_mat, MatrixXi adj_mat)
 {
     int row = 0, col = 0;
     int i = 0, j = 0;
@@ -85,7 +64,7 @@ void dataprocess1::get_basic_incidence_matrix(MatrixXi &inc_mat, MatrixXi adj_ma
 
 }
 
-void dataprocess1::get_spanning_tree(const char * gname, MatrixXi inc_mat, matrix_list &olist)
+void spanningtree_dataprocess::get_spanning_tree(const char * gname, MatrixXi inc_mat, matrix_list &olist)
 {
     int rows = 0, cols = 0; // n中选m个，n>m
     int *n = NULL, *m = NULL;
@@ -167,7 +146,7 @@ void dataprocess1::get_spanning_tree(const char * gname, MatrixXi inc_mat, matri
     return ;
 }
 
-int dataprocess1::dectect_spanning_tree(int *idx, MatrixXi inc_mat, MatrixXi &st)
+int spanningtree_dataprocess::dectect_spanning_tree(int *idx, MatrixXi inc_mat, MatrixXi &st)
 {
     int flag_transposition = 0;
     int m = 0, n = 0;
@@ -209,25 +188,6 @@ int dataprocess1::dectect_spanning_tree(int *idx, MatrixXi inc_mat, MatrixXi &st
     }
     return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -1,7 +1,14 @@
 #include "datareader_factory.h"
-#include "datareader1.h"
+#include "default_datareader.h"
 
-datareader_interface * datareader_factory::get_datareader()
+DECLEARE_REGISTATION(datareader_factory, datareader_interface)
+REFLECT_FACTORY_CONSTRUCTOR_IMPLEMENT(datareader_factory, datareader_interface)
+
+datareader_interface * datareader_factory::get_datareader(const char *name)
 {
-    return (datareader_interface *) new datareader1();
+    datareader_interface *ret = NULL;
+
+    SEARCH_REGISTATION(datareader_factory, name, datareader_interface, ret)
+    return ret;
 }
+

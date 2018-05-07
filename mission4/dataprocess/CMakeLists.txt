@@ -2,12 +2,13 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 PROJECT(dataprocess)
 SET(DP_LIB_SRC ./dataprocess_factory.cpp
-                ./dataprocess1.cpp)
-SET(DP_LIB_TEST_SRC ./dataprocess1.cpp
-                ./dataprocess_test.cpp)
+                ./display_dataprocess.cpp
+                ./spanningtree_dataprocess.cpp)
+
 IF (CMAKE_BUILD_TYPE STREQUAL Debug)
     ADD_DEFINITIONS(-D_DEBUG_ON_)
 ENDIF()
+
 FIND_PACKAGE(PkgConfig)
 PKG_CHECK_MODULES(EIGEN REQUIRED eigen3)
 
@@ -16,8 +17,4 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/..)
 SET(CMAKE_CXX_FLAGS_DEBUG -g)
 
 ADD_LIBRARY(${PROJECT_NAME} STATIC ${DP_LIB_SRC})
-ADD_EXECUTABLE(dp_test ${DP_LIB_TEST_SRC})
 
-#Settings for test
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/../datareader)
-TARGET_LINK_LIBRARIES(dp_test datareader)

@@ -2,12 +2,14 @@
 #define _DATAPROCESS_INTERFACE_
 
 #include "graph_struct.h"
+#include "reflect_define.h"
 
 class dataprocess_interface 
 {
+    REFLECT_INTERFACE(dataprocess_interface)
+
     public:
         virtual void process(matrix_list &mlist, 
-                                expr_list &elist,
                                 matrix_list &olist) = 0;
 };
 

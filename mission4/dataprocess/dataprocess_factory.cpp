@@ -1,7 +1,14 @@
 #include "dataprocess_factory.h"
-#include "dataprocess1.h"
+#include "display_dataprocess.h"
+#include "spanningtree_dataprocess.h"
 
-dataprocess_interface * dataprocess_factory::get_dataprocess()
+DECLEARE_REGISTATION(dataprocess_factory, dataprocess_interface)
+REFLECT_FACTORY_CONSTRUCTOR_IMPLEMENT(dataprocess_factory, dataprocess_interface)
+
+dataprocess_interface * dataprocess_factory::get_dataprocess(const char *name)
 {
-    return (dataprocess_interface *) new dataprocess1();
+    dataprocess_interface * ret = NULL;
+
+    SEARCH_REGISTATION(dataprocess_factory, name, dataprocess_interface, ret)
+    return ret;
 }

@@ -1,4 +1,5 @@
-#include "dataoutput1.h"
+#include "neato_dataoutput.h"
+#include "dataoutput_factory.h"
 #ifdef unix
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -7,7 +8,10 @@
 #include <direct.h>
 #endif
 
-void dataoutput1::output_graph(matrix_list &glist)
+REFLECT_IMPLEMENT(dataoutput_interface, neato_dataoutput)
+REGISTER_TO_A_FACTORY(dataoutput_factory, neato_dataoutput, "neato", dataoutput_interface)
+
+void neato_dataoutput::output_graph(matrix_list &glist)
 {
     char cwd[1024] = {0};
     char dotfiledir[2048] = {0};
@@ -37,7 +41,7 @@ void dataoutput1::output_graph(matrix_list &glist)
     } 
 }
 
-void dataoutput1::output_graph_adj_mat(const char * cwd, s_graph *g)
+void neato_dataoutput::output_graph_adj_mat(const char * cwd, s_graph *g)
 {
     char dotfilename[2048] = {0};
     char pngfilename[2048] = {0};
@@ -79,7 +83,7 @@ void dataoutput1::output_graph_adj_mat(const char * cwd, s_graph *g)
     fp = NULL;
 }
 
-void dataoutput1::output_graph_bsc_inc_mat(const char * cwd, s_graph *g)
+void neato_dataoutput::output_graph_bsc_inc_mat(const char * cwd, s_graph *g)
 {
     char dotfilename[2048] = {0};
     char pngfilename[2048] = {0};
@@ -138,7 +142,7 @@ void dataoutput1::output_graph_bsc_inc_mat(const char * cwd, s_graph *g)
     fp = NULL;
 }
 
-void dataoutput1::output_mkdir(const char *tgt)
+void neato_dataoutput::output_mkdir(const char *tgt)
 {
     // 创建输出目录
     if (access(tgt, F_OK) != 0) {
